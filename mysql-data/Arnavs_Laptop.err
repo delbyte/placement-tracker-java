@@ -1,0 +1,12 @@
+2026-04-14T23:20:15.764755Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+2026-04-14T23:20:16.009082Z 0 [System] [MY-010116] [Server] C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe (mysqld 8.4.8) starting as process 19684
+2026-04-14T23:20:16.009979Z 0 [ERROR] [MY-010338] [Server] Can't find error-message file 'C:\Program\share\english\errmsg.sys'. Check error-message file location and 'lc-messages-dir' configuration directive.
+2026-04-14T23:20:16.099795Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-04-14T23:20:16.584692Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-04-14T23:20:17.263363Z 0 [Warning] [MY-013829] [Server] Missing data directory for ICU regular expressions: C:\Program\lib\private\.
+2026-04-14T23:20:17.340707Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2026-04-14T23:20:17.342156Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2026-04-14T23:20:17.364161Z 0 [ERROR] [MY-010147] [Server] Too many arguments (first extra is 'Files\MySQL\MySQL').
+2026-04-14T23:20:17.367924Z 0 [ERROR] [MY-010119] [Server] Aborting
+2026-04-14T23:20:18.531386Z 0 [System] [MY-010910] [Server] C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe: Shutdown complete (mysqld 8.4.8)  MySQL Community Server - GPL.
+2026-04-14T23:20:18.532779Z 0 [System] [MY-015016] [Server] MySQL Server - end.
