@@ -1,85 +1,125 @@
-# Placement Tracker - Java Swing + JDBC + MySQL
+# Placement Tracker (Java Swing + JDBC + MySQL)
 
-A desktop application for:
-- student login and registration
-- profile management
-- skill tracking
-- company matching
-- internship/job status tracking
-- admin visibility into all student data
+A desktop application for managing campus placement workflow:
+- student registration and login
+- profile and skill management
+- company matching and applications
+- admin dashboard for students, companies, skills, and applications
 
-## Tech stack
+## Tech Stack
 - Java 17
 - Swing
 - JDBC
 - MySQL
+- Maven
 
-## Default login
+## Default Admin Login
 - Username: `admin`
 - Password: `admin123`
 
-## Setup
+## Quick Start on a Blank Windows PC
 
-### 1) Install software
-- JDK 17
-- MySQL Server
-- MySQL Workbench or another SQL client
-- Maven
+This is the easiest path for a fresh machine.
 
-### 2) Configure MySQL
-Open `src/main/resources/db.properties` and set:
-- MySQL username
-- MySQL password
-- host/database URL if needed
+### 1) Install prerequisites
+1. Install JDK 17.
+2. Install MySQL Server 8.x.
+3. Install Git.
 
-Default assumes:
-- MySQL running locally on port 3306
-- username `root`
-- empty password
+### 2) Clone the repository
+```powershell
+git clone https://github.com/delbyte/placement-tracker-java.git
+cd placement-tracker-java
+```
 
-### 3) Run the app
-From the project folder:
+### 3) Run the app (recommended)
+```powershell
+.\run.bat
+```
 
-```bash
+What `run.bat` does:
+1. Detects Java.
+2. Initializes a local project MySQL data folder (`mysql-data`) if needed.
+3. Starts MySQL on `127.0.0.1:3306`.
+4. Downloads Maven locally into `.tools` if missing.
+5. Builds and launches the Swing app.
+
+Keep the terminal open while using the app.
+
+## Alternative Run Method (manual MySQL + Maven)
+
+Use this if you already manage MySQL as a Windows service and have Maven installed globally.
+
+### 1) Configure DB credentials
+Edit `src/main/resources/db.properties`.
+
+Default values:
+- host URL: `jdbc:mysql://localhost:3306/?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC`
+- database URL: `jdbc:mysql://localhost:3306/placement_tracker_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC`
+- username: `root`
+- password: empty
+
+### 2) Start MySQL service
+Start your local MySQL service from Services or Workbench.
+
+### 3) Build and run
+```powershell
 mvn clean compile exec:java
 ```
 
-The app will:
-- create the database if the MySQL user has permission
-- create all required tables
-- seed admin and sample companies/skills
+## Verify Database and Tables
 
-If your MySQL user cannot create databases, run `sql/schema.sql` manually first.
+After app startup, MySQL should contain schema `placement_tracker_db`.
 
-## What the app does
-### Student side
-- register as a student
-- edit profile
+In MySQL Workbench:
+1. Connect to `127.0.0.1`, port `3306`.
+2. Open `SCHEMAS` and refresh.
+3. Expand `placement_tracker_db` -> `Tables`.
+
+Or run:
+```sql
+USE placement_tracker_db;
+SHOW TABLES;
+SELECT * FROM users;
+SELECT * FROM students;
+```
+
+## Common Issues
+
+### Workbench says "No local MySQL servers running"
+That status is about Windows services. The app can still connect if `run.bat` launched MySQL successfully.
+
+### Port 3306 already in use
+Stop the other MySQL instance, then run `run.bat` again.
+
+### MySQL startup fails
+Check the latest log output in `mysql-data\mysqld.err`.
+
+### Maven command not found
+Use `run.bat` (it auto-downloads Maven locally).
+
+## Features
+
+### Student
+- register/login
+- edit profile (track type/stage/target role)
 - add/update skills with proficiency
-- view best-fit companies
-- apply to a company
-- track application status
+- view company match scores
+- apply and track status
 
-### Admin side
-- view all students
-- open any student profile
-- view skill counts and matching companies
-- manage companies
-- map skills to companies
+### Admin
+- view all students and profile details
+- add/delete companies
+- add/update company required skills
 - manage skills
 - view all applications
 
-## Matching logic
-A company skill is counted as a match when:
+## Matching Logic
+
+A company skill is matched when:
 
 `student proficiency >= company required level`
 
-The match score is:
+Score:
 
 `matched required skills / total required skills * 100`
-
-## Notes for your viva
-- JDBC is used for all database communication
-- MySQL stores persistent data
-- Swing provides the desktop UI
-- DAO-style repository methods keep the database logic separate from the UI
