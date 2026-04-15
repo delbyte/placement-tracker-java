@@ -1,0 +1,19 @@
+# Build output
+target/
+
+# Local runtime tools and environments
+.tools/
+.venv/
+
+# Local MySQL datadir used by run.bat
+mysql-data/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Optional large local report artifacts
+*.docx
