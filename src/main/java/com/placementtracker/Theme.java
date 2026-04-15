@@ -7,6 +7,7 @@ import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.io.InputStream;
 
 public final class Theme {
     public static final Color BG = new Color(12, 12, 14);
@@ -20,12 +21,33 @@ public final class Theme {
     public static final Color SUCCESS = new Color(34, 197, 94);
     public static final Color WARNING = new Color(245, 158, 11);
 
-    public static final Font FONT = new Font("Segoe UI", Font.PLAIN, 14);
-    public static final Font FONT_BOLD = new Font("Segoe UI", Font.BOLD, 14);
-    public static final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 24);
-    public static final Font FONT_H1 = new Font("Segoe UI", Font.BOLD, 28);
+    private static final String FALLBACK_FONT_FAMILY = "Segoe UI";
+    private static final String SATOSHI_FONT_RESOURCE = "/fonts/Satoshi-Variable.ttf";
+    private static final String FONT_FAMILY = loadFontFamily();
+
+    public static final Font FONT = font(Font.PLAIN, 14f);
+    public static final Font FONT_BOLD = font(Font.BOLD, 14f);
+    public static final Font FONT_TITLE = font(Font.BOLD, 24f);
+    public static final Font FONT_H1 = font(Font.BOLD, 28f);
 
     private Theme() {}
+
+    private static String loadFontFamily() {
+        try (InputStream stream = Theme.class.getResourceAsStream(SATOSHI_FONT_RESOURCE)) {
+            if (stream == null) {
+                return FALLBACK_FONT_FAMILY;
+            }
+            Font base = Font.createFont(Font.TRUETYPE_FONT, stream);
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(base);
+            return base.getFamily();
+        } catch (Exception ignored) {
+            return FALLBACK_FONT_FAMILY;
+        }
+    }
+
+    private static Font font(int style, float size) {
+        return new Font(FONT_FAMILY, style, Math.round(size));
+    }
 
     public static void applyLookAndFeel() {
         try {
@@ -91,7 +113,7 @@ public final class Theme {
 
     public static JLabel subtitle(String text) {
         JLabel l = new JLabel(text);
-        l.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        l.setFont(font(Font.PLAIN, 13f));
         l.setForeground(MUTED);
         return l;
     }
@@ -278,7 +300,7 @@ public final class Theme {
         t.setFont(FONT_TITLE);
         t.setForeground(TEXT);
         JLabel s = new JLabel(subtitle);
-        s.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        s.setFont(font(Font.PLAIN, 13f));
         s.setForeground(MUTED);
         p.add(t);
         p.add(Box.createVerticalStrut(4));
