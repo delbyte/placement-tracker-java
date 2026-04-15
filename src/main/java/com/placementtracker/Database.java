@@ -1,7 +1,10 @@
 package com.placementtracker;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 public final class Database {
@@ -10,6 +13,7 @@ public final class Database {
     private static final String DEFAULT_USER = "root";
     private static final String DEFAULT_PASSWORD = "";
     private static final String DB_NAME = "placement_tracker_db";
+    private static final String SNAPSHOT_RESOURCE = "sql/seed_data.sql";
 
     private static String hostUrl = DEFAULT_HOST_URL;
     private static String dbUrl = DEFAULT_DB_URL;
@@ -114,7 +118,7 @@ public final class Database {
                 """);
             }
 
-            seedData();
+            seedFromSnapshotOrDefaults();
         } catch (Exception e) {
             throw new RuntimeException("""
                 Database initialization failed.
@@ -125,6 +129,69 @@ public final class Database {
                 3) The user has permission to CREATE DATABASE
 
                 Error: """ + e.getMessage(), e);
+        }
+    }
+
+    private static void seedFromSnapshotOrDefaults() throws SQLException {
+        try (Connection con = getConnection()) {
+            if (!isUsersTableEmpty(con)) {
+                return;
+            }
+        }
+
+        InputStream in = Database.class.getClassLoader().getResourceAsStream(SNAPSHOT_RESOURCE);
+        if (in == null) {
+            seedData();
+            return;
+        }
+
+        executeSqlScript(in);
+    }
+
+    private static boolean isUsersTableEmpty(Connection con) throws SQLException {
+        try (Statement st = con.createStatement();
+             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM users")) {
+            rs.next();
+            return rs.getInt(1) == 0;
+        }
+    }
+
+    private static void executeSqlScript(InputStream scriptStream) {
+        try (InputStream in = scriptStream;
+             BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+             Connection con = getConnection();
+             Statement st = con.createStatement()) {
+            StringBuilder sql = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String trimmed = line.trim();
+                if (trimmed.isEmpty() || trimmed.startsWith("--")) {
+                    continue;
+                }
+                sql.append(line).append('\n');
+                if (trimmed.endsWith(";")) {
+                    executeStatement(st, sql);
+                    sql.setLength(0);
+                }
+            }
+            if (sql.length() > 0) {
+                executeStatement(st, sql);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to import bundled seed snapshot: " + e.getMessage(), e);
+        }
+    }
+
+    private static void executeStatement(Statement st, StringBuilder rawSql) throws SQLException {
+        String statement = rawSql.toString().trim();
+        if (statement.isEmpty()) {
+            return;
+        }
+        if (statement.endsWith(";")) {
+            statement = statement.substring(0, statement.length() - 1);
+        }
+        if (!statement.isEmpty()) {
+            st.execute(statement);
         }
     }
 

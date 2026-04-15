@@ -43,6 +43,7 @@ What `run.bat` does:
 3. Starts MySQL on `127.0.0.1:3306`.
 4. Downloads Maven locally into `.tools` if missing.
 5. Builds and launches the Swing app.
+6. On first run of a fresh DB, imports the bundled snapshot from `src/main/resources/sql/seed_data.sql`.
 
 Keep the terminal open while using the app.
 
@@ -69,7 +70,7 @@ mvn clean compile exec:java
 
 ## Verify Database and Tables
 
-After app startup, MySQL should contain schema `placement_tracker_db`.
+After app startup, MySQL should contain schema `placement_tracker_db` and preloaded data from the bundled snapshot.
 
 In MySQL Workbench:
 1. Connect to `127.0.0.1`, port `3306`.
@@ -82,6 +83,15 @@ USE placement_tracker_db;
 SHOW TABLES;
 SELECT * FROM users;
 SELECT * FROM students;
+```
+
+## Refresh Seed Snapshot (for maintainers)
+
+If you want to commit a newer snapshot of your current local DB state:
+
+```powershell
+& "C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqldump.exe" -h 127.0.0.1 -P 3306 -u root --skip-comments --skip-add-locks --skip-disable-keys --no-create-db --no-create-info --skip-triggers --complete-insert --order-by-primary placement_tracker_db > sql\seed_data.sql
+Copy-Item sql\seed_data.sql src\main\resources\sql\seed_data.sql -Force
 ```
 
 ## Common Issues
